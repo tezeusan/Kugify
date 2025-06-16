@@ -1,4 +1,20 @@
-.PHONY: install compile lint sort format run run-dev 
+.DEFAULT_GOAL := help
+
+.PHONY: help run run-dev install compile lint sort format alembic-init alembic-revision alembic-upgrade alembic-downgrade
+
+help:
+	@echo "Available targets:"
+	@echo "  run                 Start Uvicorn server"
+	@echo "  run-dev             Start via fastapi-cli"
+	@echo "  install             Install dev dependencies"
+	@echo "  compile             Rebuild requirements*.txt"
+	@echo "  lint                Run Ruff linting"
+	@echo "  sort                Sort imports with isort"
+	@echo "  format              Format code with Black"
+	@echo "  alembic-init        Scaffold Alembic environment"
+	@echo "  alembic-revision    Create new migration (autogenerate)"
+	@echo "  alembic-upgrade     Apply migrations to latest"
+	@echo "  alembic-downgrade   Roll back last migration"
 
 run:
 	uvicorn app.main:app --reload
@@ -22,7 +38,14 @@ sort:
 format:
 	black ./app
 
-style:
-	ruff check .
-	isort ./app
-	black ./app
+alembic-init:
+	alembic init alembic
+
+alembic-revision:
+	alembic revision --autogenerate -m "$(msg)"
+
+alembic-upgrade:
+	alembic upgrade head
+
+alembic-downgrade:
+	alembic downgrade -1
