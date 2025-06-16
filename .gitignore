@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.env
+
+# Ruff & Black
+.ruff_cache/
+
+# VS Code / IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# uv / pip / Poetry
+*.lock
+.cache/
+__pypackages__/
+
+# Compiled binaries
+*.so
+*.pyd
+*.dll
+*.exe
+*.o
+*.a
+*.dylib
+
+# Logs and coverage
+*.log
+coverage.*
+htmlcov/
+.tox/
+.nox/
+.pytest_cache/
+
+# Jupyter / IPython
+.ipynb_checkpoints/

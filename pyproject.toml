@@ -1,0 +1,46 @@
+[project]
+name = "kugify"
+version = "0.1.0"
+description = "My FastAPI backend for kugify"
+authors = [
+  { name="Vlad", email="vladys.amigo97@gmail.com" }
+]
+
+dependencies = [
+  "fastapi[standard]",
+  "uvicorn[standard]",
+  "sqlalchemy",
+  "python-dotenv",
+  "email-validator",
+  "sqlmodel"
+]
+
+[project.optional-dependencies]
+dev = [
+  "black",
+  "ruff",
+  "pytest",
+  "httpx",
+  "isort",
+  "mypy",
+  "watchfiles"
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "B"]
+ignore = ["E501"]
+
+[tool.ruff.format]
+docstring-code-format = true
