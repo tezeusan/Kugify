@@ -34,10 +34,10 @@ compile:
 	pip-compile pyproject.toml --extra dev --output-file=requirements-dev.txt
 
 lint:
-	ruff check .
+	ruff check ./app
 
 check-lint:
-	ruff --exit-zero --select ALL . || (echo 'Lint errors detected. Run make lint to fix.' && exit 1)
+	ruff check . || (echo 'Lint errors detected. Run make lint to fix.' && exit 1)
 
 sort:
 	isort ./app
