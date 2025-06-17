@@ -58,15 +58,17 @@ def run_migrations_online() -> None:
     async def do_migrations():
         async with connectable.connect() as conn:
             # configure context with a synchronous connection
-            await conn.run_sync(lambda sync_conn: context.configure(
-                connection=sync_conn,
-                target_metadata=target_metadata
-            ))
+            await conn.run_sync(
+                lambda sync_conn: context.configure(
+                    connection=sync_conn, target_metadata=target_metadata
+                )
+            )
             async with conn.begin():
                 await conn.run_sync(lambda sync_conn: context.run_migrations())
 
     # run the async migration routine
     import asyncio
+
     asyncio.run(do_migrations())
 
 
