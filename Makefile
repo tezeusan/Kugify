@@ -27,7 +27,7 @@ run-dev:
 	fastapi dev app/main.py
 
 install:
-	uv pip install --system --extras "dev"
+	uv pip install --system ".[dev]"
 
 compile:
 	pip-compile pyproject.toml --output-file=requirements.txt
