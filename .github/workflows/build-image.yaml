@@ -23,10 +23,10 @@ jobs:
         with:
           python-version: 3.12
 
-      - name: Install uv and project dependencies
+      - name: Install uv and project dependencies (system)
         run: |
           pip install uv
-          uv pip install .[dev]
+          uv pip install --system .[dev]
 
       - name: Run code checks
         run: |
