@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools>=61", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,7 +7,7 @@ name = "kugify"
 version = "0.1.0"
 description = "FastAPI backend for Kugify"
 authors = [
-  { name="Vlad", email="vladys.amigo97@gmail.com" }
+  { name = "Vlad", email = "vladys.amigo97@gmail.com" }
 ]
 requires-python = ">=3.11"
 
@@ -35,7 +35,12 @@ dev = [
   "watchfiles",
 ]
 
-# ── Tool configuration ────────────────────────────────────────
+# ── Explicit package discovery for setuptools ───────────────────
+# См. setuptools docs: https://setuptools.pypa.io/en/latest/userguide/packaging.html#using-find
+[tool.setuptools.packages]
+find = { where = ["."], include = ["app*", "alembic*"] }
+
+# ── Tool configuration ───────────────────────────────────────────
 
 [tool.black]
 line-length = 88

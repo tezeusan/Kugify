@@ -40,3 +40,6 @@ htmlcov/
 
 # Jupyter / IPython
 .ipynb_checkpoints/
+
+/build/
+*.egg-info/
