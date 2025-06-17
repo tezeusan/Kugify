@@ -7,7 +7,7 @@ on:
       - completed
 
 env:
-  IMAGE_NAME: tezeusan/kugify
+  IMAGE_NAME: vladysamigos/kugify
 
 jobs:
   build:
