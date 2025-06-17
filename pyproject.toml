@@ -19,7 +19,6 @@ dependencies = [
   "asyncpg",
   "python-dotenv",
   "email-validator",
-  "sqlmodel",
 ]
 
 [project.optional-dependencies]

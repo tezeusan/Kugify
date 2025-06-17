@@ -1,0 +1,39 @@
+name: Code Quality & Helm
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dev dependencies
+        run: make install
+
+      - name: Ruff lint check
+        run: make check-lint
+
+      - name: isort check
+        run: make check-sort
+
+      - name: Black format check
+        run: make check-format
+
+      - name: Run pytest
+        run: make test
+
+      - name: Helm lint
+        run: helm lint charts/kugify
+
+      - name: Helm template
+        run: helm template kugify charts/kugify --values charts/kugify/values.yaml
