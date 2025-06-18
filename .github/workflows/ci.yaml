@@ -1,76 +1,105 @@
-# .github/workflows/ci.yml
-name: CI - Check & Build
+name: CI Pipeline
 
 on:
   push:
-    branches: ["main"]
+    branches: [main]
   pull_request:
-    branches: ["main"]
+    branches: [main]
+
+env:
+  IMAGE_NAME: vladysamigos/kugify
 
 jobs:
-  checks:
-    name: Lint, Format, Sort, Tests
+  check:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
         with:
-          python-version: "3.12"
+          python-version: '3.12'
+
+      - name: Cache pip
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.venv
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
       - name: Install uv
         run: pip install uv
 
       - name: Install dev dependencies
-        run: uv pip install --system --extras "dev"
+        run: make install
 
-      - name: Check Ruff
+      - name: Ruff lint check
         run: make check-lint
 
-      - name: Check isort
+      - name: isort check
         run: make check-sort
 
-      - name: Check Black formatting
+      - name: Black format check
         run: make check-format
 
-      - name: Run tests (if present)
+      - name: Run pytest
         run: make test
 
+      - name: Helm lint
+        run: helm lint charts/kugify
+
+      - name: Helm template
+        run: helm template kugify charts/kugify --values charts/kugify/values.yaml
+
   build:
-    name: Build and Push Docker Image
     runs-on: ubuntu-latest
-    needs: checks  # ensures checks pass first
+    needs: check
+    if: ${{ success() }}
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+
+      - name: Install uv and project dependencies (system)
+        run: |
+          pip install uv
+          uv pip install --system .[dev]
+
+      - name: Run code checks
+        run: |
+          make check-format
+          make check-sort
+          make check-lint
+          make test
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to DockerHub
+      - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Extract metadata (tags, labels)
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ secrets.DOCKERHUB_USERNAME }}/kugify
-          tags: |
-            type=sha,format=short
-            type=raw,value=latest
+      - name: Extract short SHA
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile
+          file: Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: |
+            ${{ env.IMAGE_NAME }}:latest
+            ${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.sha_short }}
