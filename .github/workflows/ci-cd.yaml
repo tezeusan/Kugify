@@ -123,7 +123,7 @@ jobs:
 
       - name: Extract short SHA
         id: vars
-        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Deploy with Helm
         run: |
@@ -132,3 +132,9 @@ jobs:
             --create-namespace \
             --set image.repository=vladysamigos/kugify \
             --set image.tag=${{ steps.vars.outputs.sha_short }}
+
+      - name: Check deployed resources
+        run: |
+          echo "Resources in namespace kugify:"
+          kubectl get all -n kugify || echo "Failed to fetch resources"
+
