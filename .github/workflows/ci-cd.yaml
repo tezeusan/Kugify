@@ -128,5 +128,7 @@ jobs:
       - name: Deploy with Helm
         run: |
           helm upgrade --install kugify charts/kugify \
+            --namespace kugify \
+            --create-namespace \
             --set image.repository=vladysamigos/kugify \
             --set image.tag=${{ steps.vars.outputs.sha_short }}
