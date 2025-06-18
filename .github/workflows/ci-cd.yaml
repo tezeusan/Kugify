@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
@@ -58,7 +58,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     needs: check
-    if: ${{ success() }}
 
     steps:
       - name: Checkout repository
@@ -69,7 +68,7 @@ jobs:
         with:
           python-version: 3.12
 
-      - name: Install uv and project dependencies (system)
+      - name: Install uv and project dependencies
         run: |
           pip install uv
           uv pip install --system .[dev]
@@ -103,3 +102,31 @@ jobs:
           tags: |
             ${{ env.IMAGE_NAME }}:latest
             ${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.sha_short }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    if: ${{ success() }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG_DATA }}" > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+
+      - name: Extract short SHA
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Deploy with Helm
+        run: |
+          helm upgrade --install kugify charts/kugify \
+            --set image.repository=vladysamigos/kugify \
+            --set image.tag=${{ steps.vars.outputs.sha_short }}
