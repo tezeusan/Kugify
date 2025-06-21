@@ -125,6 +125,12 @@ jobs:
         id: vars
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
 
+      - name: Create Kubernetes Secret from GitHub Secret
+        run: |
+          kubectl create secret generic kugify-secrets \
+            --from-literal=DATABASE_URL="${{ secrets.DATABASE_URL }}" \
+            -n kugify --dry-run=client -o yaml | kubectl apply -f -
+
       - name: Deploy with Helm
         run: |
           helm upgrade --install kugify charts/kugify \
@@ -132,6 +138,7 @@ jobs:
             --create-namespace \
             --set image.repository=vladysamigos/kugify \
             --set image.tag=${{ steps.vars.outputs.sha_short }}
+
 
       - name: Check deployed resources
         run: |
